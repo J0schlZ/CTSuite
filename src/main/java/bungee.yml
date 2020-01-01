@@ -1,6 +1,7 @@
 name: CTSuite
 description: Connects servers under Bungeecord and offers various essential commans
 main: de.crafttogether.ctsuite.bukkit.CTSuite
-version: 1.0.0
+version: ${project.version}
+build: ${project.cibuild}
 author: J0schlZ
-website: https://www.craft-together.de/
+website: ${project.url}

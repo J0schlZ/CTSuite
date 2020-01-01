@@ -6,7 +6,7 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
-  <name>CTSockets</name>
+  <name>CTSuite</name>
   <url>https://github.com/J0schlZ/CTSockets/</url>
 
   <properties>
