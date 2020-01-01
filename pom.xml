@@ -1,10 +1,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  
   <groupId>de.crafttogether</groupId>
   <artifactId>CTSuite</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>CTSuite</name>
-  <description>Connects servers under Bungeecord and offers various essential commands</description>
+  <packaging>jar</packaging>
+  
+  <name>CTSockets</name>
+  <url>https://github.com/J0schlZ/CTSockets/</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.mcversion>1.15.1</project.mcversion>
+    <project.cibuild/>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>ci</id>
+      <activation>
+        <property>
+          <name>env.BUILD_NUMBER</name>
+        </property>
+      </activation>
+      <properties>
+        <project.cibuild>${env.BUILD_NUMBER}</project.cibuild>
+      </properties>
+    </profile>
+  </profiles>
+
   <repositories>
     <repository>
       <id>spigot-repo</id>
@@ -19,6 +43,7 @@
       <url>https://maven.vanilla-minecraft.de/</url>
     </repository>
   </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>
@@ -57,15 +82,18 @@
       <scope>provided</scope>
 	</dependency>
   </dependencies>
+  
   <distributionManagement>
     <repository>
       <id>ctogether-ftp</id>
       <url>ftp://maven.vanilla-minecraft.de/</url>
     </repository>
   </distributionManagement>
+  
   <build>
     <defaultGoal>clean deploy</defaultGoal>
     <sourceDirectory>src/main/java</sourceDirectory>
+    
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -75,6 +103,7 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -91,7 +120,37 @@
           <createDependencyReducedPom>false</createDependencyReducedPom>
         </configuration>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>de.crafttogether</groupId>
+                  <artifactId>CTSuite</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <destFileName>${project.name}.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
+    
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -100,7 +159,24 @@
           <include>*</include>
         </includes>
       </resource>
+      
+      <resource>
+        <directory>src/main/java</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>plugin.yml</include>
+        </includes>
+      </resource>
+      
+      <resource>
+        <directory>src/main/java</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>bungee.yml</include>
+        </includes>
+      </resource>
     </resources>
+    
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
