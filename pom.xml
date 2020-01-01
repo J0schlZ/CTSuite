@@ -57,9 +57,14 @@
       <scope>provided</scope>
 	</dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>ctogether-ftp</id>
+      <url>ftp://maven.vanilla-minecraft.de/</url>
+    </repository>
+  </distributionManagement>
   <build>
-    <finalName>CTSuite</finalName>
-    <defaultGoal>clean package</defaultGoal>
+    <defaultGoal>clean deploy</defaultGoal>
     <sourceDirectory>src/main/java</sourceDirectory>
     <plugins>
       <plugin>
@@ -96,5 +101,12 @@
         </includes>
       </resource>
     </resources>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ftp</artifactId>
+        <version>1.0-alpha-6</version>
+      </extension>
+    </extensions>
   </build>
 </project>
