@@ -7,8 +7,8 @@ import java.util.HashMap;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import de.crafttogether.database.AsyncMySQLHandler;
 import de.crafttogether.ctsuite.bukkit.CTSuite;
+import de.crafttogether.ctsuite.util.AsyncMySQLHandler;
 import de.crafttogether.ctsuite.util.CTServer;
 
 public class ServerHandler {

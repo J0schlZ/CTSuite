@@ -18,12 +18,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.io.ByteStreams;
 
-import de.crafttogether.database.AsyncMySQLHandler;
 import de.crafttogether.ctsockets.bukkit.CTSockets;
 import de.crafttogether.ctsuite.bukkit.commands.RegisterCommands;
 import de.crafttogether.ctsuite.bukkit.handlers.PlayerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.ServerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.WorldHandler;
+import de.crafttogether.ctsuite.util.AsyncMySQLHandler;
 
 /**
  * CTSuite

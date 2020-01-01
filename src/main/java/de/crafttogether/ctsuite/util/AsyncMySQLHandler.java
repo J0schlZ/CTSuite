@@ -1,4 +1,4 @@
-package de.crafttogether.database;
+package de.crafttogether.ctsuite.util;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,6 +14,10 @@ import de.crafttogether.ctsuite.bukkit.CTSuite;
 public class AsyncMySQLHandler {
 	private CTSuite plugin;
 	private HikariDataSource dataSource;
+	
+	public interface Callback<V extends Object, T extends Throwable> {
+	    public void call(V result, T thrown);
+	}
 	
 	public AsyncMySQLHandler(String host, int port, String database, String user, String password) {
 		this.plugin = CTSuite.getInstance();

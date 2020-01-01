@@ -10,8 +10,8 @@ import java.io.OutputStream;
 
 import com.google.common.io.ByteStreams;
 
-import de.crafttogether.database.AsyncMySQLHandler;
 import de.crafttogether.ctsockets.bungee.CTSockets;
+import de.crafttogether.ctsuite.util.AsyncMySQLHandler;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
