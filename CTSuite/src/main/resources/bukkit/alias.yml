@@ -1,0 +1,15 @@
+commands:
+  spawn: true
+  setspawn: true
+  setfirstspawn: true
+  
+  fly: true
+  flyspeed: true
+  
+  gm: true
+  gamemode: true
+  
+  tp: true
+  tphere: true
+  tpa: true
+  tpahere: true
