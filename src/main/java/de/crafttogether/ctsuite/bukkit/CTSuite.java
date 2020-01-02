@@ -8,22 +8,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.JSONObject;
 
 import com.google.common.io.ByteStreams;
 
-import de.crafttogether.ctsockets.bukkit.CTSockets;
-import de.crafttogether.ctsuite.bukkit.commands.RegisterCommands;
+import de.crafttogether.ctsuite.bukkit.messaging.MessagingService;
+import de.crafttogether.ctsuite.bukkit.messaging.ReceivedPacket;
+import de.crafttogether.ctsuite.bukkit.messaging.MessagingService.Adapter;
+import de.crafttogether.ctsuite.bukkit.messaging.MessagingService.Callback;
+import de.crafttogether.ctsuite.bukkit.messaging.Packet;
+import de.crafttogether.ctsuite.bukkit.database.AsyncMySQLHandler;
+
 import de.crafttogether.ctsuite.bukkit.handlers.PlayerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.ServerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.WorldHandler;
-import de.crafttogether.ctsuite.util.AsyncMySQLHandler;
 
 /**
  * CTSuite
@@ -36,38 +39,60 @@ public class CTSuite extends JavaPlugin {
 	
 	private FileConfiguration config;
 	private AsyncMySQLHandler db;
-	private CTSockets ctSockets;
+	
+	private MessagingService messaging;
 	
 	private ServerHandler serverHandler;
 	private PlayerHandler playerHandler;
 	private WorldHandler worldHandler;
-	
+
 	@Override
 	public void onEnable() {
 		plugin = this;
-		db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "Pj9va*33");
-		ctSockets = (CTSockets) Bukkit.getServer().getPluginManager().getPlugin("CTSockets");
-    	
-        if (ctSockets == null || !(ctSockets instanceof CTSockets)) {
-            getLogger().warning("Couln't find CTSockets");
-            Bukkit.getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+		//db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "");
         
 		loadConfig();
 		//new RegisterCommands();
+		
+		messaging = new MessagingService(Adapter.CTSOCKETS);
 		
 		serverHandler = new ServerHandler();
 		playerHandler = new PlayerHandler();
 		worldHandler = new WorldHandler();
 		
 		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
+
+		messaging.on("server-connection", new Callback() {
+			@Override
+		    public void run(ReceivedPacket packet) {
+		    	plugin.getLogger().info("Server '" + packet.getValues().get("serverName") + "' verbunden.");
+		    }
+		});
+		
+		messaging.on("testMessage", new Callback() {
+			@Override
+		    public void run(ReceivedPacket packet) {
+				JSONObject values = packet.getValues();
+		    	System.out.println("Message Received! Sender: " + packet.getSender());
+		    	System.out.println("testvar: " + values.getString("testvar"));
+		    }
+		});
+		
+		
+		// Run 5 Sek later as test
+		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+			@Override
+			public void run() {
+				Packet msg = new Packet("testMessage");
+				msg.put("testvar", "Joscha ist cool!");
+				msg.sendServer();
+			}
+		}, 20L*5);
 	}
 
 	@Override
 	public void onDisable() {
-		serverHandler.shutdown();
-		db.disconnect();
+		//db.disconnect();
 		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " disabled");
 	}
 	
@@ -110,16 +135,16 @@ public class CTSuite extends JavaPlugin {
 		return worldHandler;
 	}
 	
+	public MessagingService getMessagingService() {
+		return messaging;
+	}
+	
 	public FileConfiguration getConfig() {
 		return config;
 	}
 	
 	public AsyncMySQLHandler getDb() {
 		return db;
-	}
-	
-	public CTSockets getCTSocket() {
-		return ctSockets;
 	}
 
 	public static CTSuite getInstance() {

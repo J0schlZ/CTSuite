@@ -8,7 +8,7 @@ import java.util.HashMap;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import de.crafttogether.ctsuite.bukkit.CTSuite;
-import de.crafttogether.ctsuite.util.AsyncMySQLHandler;
+import de.crafttogether.ctsuite.bukkit.database.AsyncMySQLHandler;
 import de.crafttogether.ctsuite.util.CTServer;
 
 public class ServerHandler {
@@ -27,7 +27,7 @@ public class ServerHandler {
 		//TODO: Process ServerConnectedEvent from CTSockets
 		
 		//TODO: Register server at database
-		registerAtDatabase();
+		//registerAtDatabase();
 	}
 
 	private void registerAtDatabase() {
@@ -74,9 +74,5 @@ public class ServerHandler {
 		if (serverMap.containsKey(name))
 			return serverMap.get(name);
 		return null;
-	}
-
-	public void shutdown() {
-		// TODO Shutdown ServerHandler
 	}
 }

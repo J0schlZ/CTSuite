@@ -11,7 +11,7 @@ import java.io.OutputStream;
 import com.google.common.io.ByteStreams;
 
 import de.crafttogether.ctsockets.bungee.CTSockets;
-import de.crafttogether.ctsuite.util.AsyncMySQLHandler;
+import de.crafttogether.ctsuite.bungee.database.AsyncMySQLHandler;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -33,7 +33,7 @@ public class CTSuite extends Plugin {
     @Override
 	public void onEnable() {
     	plugin = this;
-		db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "Pj9va*33");
+		//db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "");
 		ctSockets = (CTSockets) getProxy().getPluginManager().getPlugin("CTSockets");
     	
         if (ctSockets == null || !(ctSockets instanceof CTSockets)) {
@@ -50,6 +50,7 @@ public class CTSuite extends Plugin {
 
     @Override
 	public void onDisable() {
+    	//db.disconnect();
 		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " disabled");
     }
     
