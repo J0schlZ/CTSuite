@@ -1,4 +1,4 @@
-package de.crafttogether.ctsuite.util;
+package de.crafttogether.ctsuite.bukkit.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
