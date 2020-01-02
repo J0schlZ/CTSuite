@@ -7,11 +7,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
+
+import org.bukkit.Bukkit;
 
 import com.google.common.io.ByteStreams;
 
-import de.crafttogether.ctsockets.bungee.CTSockets;
+import de.crafttogether.ctsuite.bungee.messaging.MessagingService;
+import de.crafttogether.ctsuite.bungee.messaging.Packet;
+import de.crafttogether.ctsuite.bungee.messaging.MessagingService.Adapter;
 import de.crafttogether.ctsuite.bungee.database.AsyncMySQLHandler;
+
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -28,24 +34,28 @@ public class CTSuite extends Plugin {
 	
     private Configuration config;
 	private AsyncMySQLHandler db;
-	private CTSockets ctSockets;
+	private MessagingService messaging;
 
     @Override
 	public void onEnable() {
     	plugin = this;
-		//db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "");
-		ctSockets = (CTSockets) getProxy().getPluginManager().getPlugin("CTSockets");
-    	
-        if (ctSockets == null || !(ctSockets instanceof CTSockets)) {
-            this.getLogger().warning("Couln't find CTSockets");
-            this.onDisable();
-            return;
-        }
-		
+		//db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "");	
 
 		loadConfig();
+		
+		messaging = new MessagingService(Adapter.CTSOCKETS);
         
     	System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
+    	
+		// Run 5 Sek later as test
+		plugin.getProxy().getScheduler().schedule(this, new Runnable() {
+			@Override
+			public void run() {
+				Packet msg = new Packet("testMessage");
+				msg.put("testvar", "Hey, hier ist Bungee! *wink*");
+				msg.sendAll();
+			}
+		}, 5, TimeUnit.SECONDS);
 	}
 
     @Override
@@ -79,6 +89,10 @@ public class CTSuite extends Plugin {
         
         return config;
 	}
+	
+	public MessagingService getMessagingService() {
+		return messaging;
+	}
     
 	public Configuration getConfig() {
 		return config;
@@ -86,10 +100,6 @@ public class CTSuite extends Plugin {
 	
 	public AsyncMySQLHandler getDb() {
 		return db;
-	}
-	
-	public CTSockets getCTSocket() {
-		return ctSockets;
 	}
 
 	public static CTSuite getInstance() {
