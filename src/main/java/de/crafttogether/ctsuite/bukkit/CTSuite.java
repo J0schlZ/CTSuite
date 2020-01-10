@@ -12,18 +12,23 @@ import java.io.OutputStream;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.json.JSONObject;
+import org.json.JSONArray;
 
 import com.google.common.io.ByteStreams;
+import com.onarandombox.MultiverseCore.MultiverseCore;
 
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingService;
-import de.crafttogether.ctsuite.bukkit.messaging.ReceivedPacket;
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingService.Adapter;
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingService.Callback;
-import de.crafttogether.ctsuite.bukkit.messaging.Packet;
-import de.crafttogether.ctsuite.bukkit.database.AsyncMySQLHandler;
-
+import de.crafttogether.ctsuite.messaging.MessagingService;
+import de.crafttogether.ctsuite.messaging.ReceivedPacket;
+import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
+import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
+import de.crafttogether.ctsuite.util.CTServer;
+import de.crafttogether.ctsuite.util.CTWorld;
+import de.crafttogether.ctsuite.util.PluginEnvironment;
+import de.crafttogether.ctsuite.messaging.Packet;
+import de.crafttogether.ctsuite.database.AsyncMySQLHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.PlayerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.ServerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.WorldHandler;
@@ -36,58 +41,62 @@ import de.crafttogether.ctsuite.bukkit.handlers.WorldHandler;
 
 public class CTSuite extends JavaPlugin {
 	private static CTSuite plugin;
+	private static PluginEnvironment environment = PluginEnvironment.BUKKIT;
 	
 	private FileConfiguration config;
 	private AsyncMySQLHandler db;
-	
 	private MessagingService messaging;
 	
 	private ServerHandler serverHandler;
 	private PlayerHandler playerHandler;
 	private WorldHandler worldHandler;
+	
+	private MultiverseCore multiverse = null;
 
 	@Override
 	public void onEnable() {
 		plugin = this;
-		//db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "");
+		//db = new AsyncMySQLHandler(environment, "127.0.0.1", 3306, "ct_ctogether", "ctogether", "");
         
 		loadConfig();
+		loadPlugins();
 		//new RegisterCommands();
 		
-		messaging = new MessagingService(Adapter.CTSOCKETS);
+		messaging = new MessagingService(Adapter.CTSOCKETS, environment);
 		
 		serverHandler = new ServerHandler();
 		playerHandler = new PlayerHandler();
 		worldHandler = new WorldHandler();
 		
+		messaging.on("socket-connection", new Callback() {
+			@Override
+			public void run(ReceivedPacket received) {
+				Packet packet = new Packet("server-register");
+				
+				JSONArray worldList = new JSONArray();
+				for (CTWorld world : worldHandler.getWorlds())
+					worldList.put(world.getName());
+
+				packet.put("serverName", messaging.getAdapter().getClientName());
+				packet.put("worldList", worldList);
+				packet.sendAll();
+			}
+		});
+		
 		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
 
-		messaging.on("server-connection", new Callback() {
-			@Override
-		    public void run(ReceivedPacket packet) {
-		    	plugin.getLogger().info("Server '" + packet.getValues().get("serverName") + "' verbunden.");
-		    }
-		});
-		
-		messaging.on("testMessage", new Callback() {
-			@Override
-		    public void run(ReceivedPacket packet) {
-				JSONObject values = packet.getValues();
-		    	System.out.println("Message Received! Sender: " + packet.getSender());
-		    	System.out.println("testvar: " + values.getString("testvar"));
-		    }
-		});
-		
-		
 		// Run 5 Sek later as test
-		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 			@Override
 			public void run() {
-				Packet msg = new Packet("testMessage");
-				msg.put("testvar", "Joscha ist cool!");
-				msg.sendServer();
+				plugin.getLogger().info("Server:");
+				for (CTServer server : serverHandler.getServer())
+					plugin.getLogger().info(server.getName());
+				plugin.getLogger().info("Worlds:");
+				for (CTWorld world : worldHandler.getWorlds())
+					plugin.getLogger().info(world.getName());
 			}
-		}, 20L*5);
+		}, 20L*5, 20L*5);
 	}
 
 	@Override
@@ -123,6 +132,18 @@ public class CTSuite extends JavaPlugin {
         return config;
 	}
 	
+    private void loadPlugins() {
+    	PluginManager pm = getServer().getPluginManager();
+    	Plugin loadedPlugin;
+        if (pm.getPlugin("Multiverse-Core") != null) {
+        	loadedPlugin = pm.getPlugin("Multiverse-Core");
+            if (loadedPlugin instanceof MultiverseCore)
+                this.multiverse = (MultiverseCore) loadedPlugin;
+            else
+                this.getLogger().warning("Couln't find Multiverse-Core.");
+        }
+    }
+	
 	public ServerHandler getServerHandler() {
 		return serverHandler;
 	}
@@ -139,12 +160,20 @@ public class CTSuite extends JavaPlugin {
 		return messaging;
 	}
 	
+	public MultiverseCore getMultiverseCore() {
+		return multiverse;
+	}
+	
 	public FileConfiguration getConfig() {
 		return config;
 	}
 	
 	public AsyncMySQLHandler getDb() {
 		return db;
+	}
+	
+	public static PluginEnvironment getEnvironment() {
+		return environment;
 	}
 
 	public static CTSuite getInstance() {

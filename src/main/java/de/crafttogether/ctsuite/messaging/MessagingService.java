@@ -1,4 +1,4 @@
-package de.crafttogether.ctsuite.bukkit.messaging;
+package de.crafttogether.ctsuite.messaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,16 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
-
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingAdapter;
-import de.crafttogether.ctsuite.bukkit.messaging.adapter.CTSocketsAdapter;
+import de.crafttogether.ctsuite.util.PluginEnvironment;
 
 public class MessagingService {
 	private static MessagingService messagingService;
 	
 	public interface Callback {
-		void run(ReceivedPacket packet);
+		public void run(ReceivedPacket packet);
 	}
 	
 	public enum Adapter {
@@ -26,13 +23,23 @@ public class MessagingService {
 	
 	private MessagingAdapter adapter;
 	
-	public MessagingService(Adapter adapterName) {
+	public MessagingService(Adapter adapterName, PluginEnvironment environment) {
 		messagingService = this;
 		
 		this.eventMap = new HashMap<String, List<Callback>>();
 		
-		switch(adapterName) {
-			case CTSOCKETS: adapter = new CTSocketsAdapter(this); break;
+		switch (environment) {
+			case BUNGEE:
+				switch(adapterName) {
+					case CTSOCKETS: adapter = new de.crafttogether.ctsuite.messaging.bungee.adapter.CTSocketsAdapter(this); break;
+				}
+			break;
+			
+			case BUKKIT:
+				switch(adapterName) {
+					case CTSOCKETS: adapter = new de.crafttogether.ctsuite.messaging.bukkit.adapter.CTSocketsAdapter(this); break;
+				}
+			break;
 		}
 	}
 	

@@ -9,19 +9,22 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
-import org.bukkit.Bukkit;
-
 import com.google.common.io.ByteStreams;
 
-import de.crafttogether.ctsuite.bungee.messaging.MessagingService;
-import de.crafttogether.ctsuite.bungee.messaging.Packet;
-import de.crafttogether.ctsuite.bungee.messaging.MessagingService.Adapter;
-import de.crafttogether.ctsuite.bungee.database.AsyncMySQLHandler;
-
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
+
+import de.crafttogether.ctsuite.database.AsyncMySQLHandler;
+import de.crafttogether.ctsuite.bungee.handlers.ServerHandler;
+import de.crafttogether.ctsuite.bungee.handlers.WorldHandler;
+import de.crafttogether.ctsuite.messaging.MessagingService;
+import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
+import de.crafttogether.ctsuite.util.CTServer;
+import de.crafttogether.ctsuite.util.CTWorld;
+import de.crafttogether.ctsuite.util.PluginEnvironment;
 
 /**
  * CTSuite
@@ -31,36 +34,49 @@ import net.md_5.bungee.config.YamlConfiguration;
 
 public class CTSuite extends Plugin {
 	private static CTSuite plugin;
+	private static PluginEnvironment environment = PluginEnvironment.BUNGEE;
 	
     private Configuration config;
 	private AsyncMySQLHandler db;
 	private MessagingService messaging;
 
+	private ServerHandler serverHandler;
+	private WorldHandler worldHandler;
+
     @Override
 	public void onEnable() {
     	plugin = this;
-		//db = new AsyncMySQLHandler("127.0.0.1", 3306, "ct_ctogether", "ctogether", "");	
+		//db = new AsyncMySQLHandler(environment, "127.0.0.1", 3306, "ct_ctogether", "ctogether", "");	
 
 		loadConfig();
 		
-		messaging = new MessagingService(Adapter.CTSOCKETS);
+		messaging = new MessagingService(Adapter.CTSOCKETS, environment);
         
+		serverHandler = new ServerHandler();
+		worldHandler = new WorldHandler();
+		
     	System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
     	
 		// Run 5 Sek later as test
 		plugin.getProxy().getScheduler().schedule(this, new Runnable() {
 			@Override
 			public void run() {
-				Packet msg = new Packet("testMessage");
-				msg.put("testvar", "Hey, hier ist Bungee! *wink*");
-				msg.sendAll();
+				plugin.getLogger().info("Server:");
+				for (CTServer server : serverHandler.getServer())
+					plugin.getLogger().info(server.getName());
+				plugin.getLogger().info("Worlds:");
+				for (CTWorld world : worldHandler.getWorlds())
+					plugin.getLogger().info(world.getName());
 			}
-		}, 5, TimeUnit.SECONDS);
+		}, 5, 5, TimeUnit.SECONDS);
 	}
 
     @Override
 	public void onDisable() {
+    	PluginManager pm = getProxy().getPluginManager();
     	//db.disconnect();
+    	pm.unregisterListeners(this);
+    	pm.unregisterCommands(this);
 		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " disabled");
     }
     
@@ -90,6 +106,13 @@ public class CTSuite extends Plugin {
         return config;
 	}
 	
+	public ServerHandler getServerHandler() {
+		return serverHandler;
+	}
+		
+	public WorldHandler getWorldHandler() {
+		return worldHandler;
+	}
 	public MessagingService getMessagingService() {
 		return messaging;
 	}
@@ -100,6 +123,10 @@ public class CTSuite extends Plugin {
 	
 	public AsyncMySQLHandler getDb() {
 		return db;
+	}
+	
+	public static PluginEnvironment getEnvironment() {
+		return environment;
 	}
 
 	public static CTSuite getInstance() {

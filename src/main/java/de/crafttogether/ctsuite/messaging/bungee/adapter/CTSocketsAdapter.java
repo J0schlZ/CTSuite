@@ -1,4 +1,4 @@
-package de.crafttogether.ctsuite.bungee.messaging.adapter;
+package de.crafttogether.ctsuite.messaging.bungee.adapter;
 
 import java.util.List;
 import java.util.Map;
@@ -9,19 +9,20 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.event.EventHandler;
+
+import de.crafttogether.ctsuite.bungee.CTSuite;
+import de.crafttogether.ctsuite.messaging.MessagingService;
+import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
+import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
+import de.crafttogether.ctsuite.messaging.Packet;
+import de.crafttogether.ctsuite.messaging.ReceivedPacket;
+import de.crafttogether.ctsuite.messaging.BungeeMessagingAdapter;
 import de.crafttogether.ctsockets.bungee.CTSockets;
 import de.crafttogether.ctsockets.bungee.events.MessageReceivedEvent;
 import de.crafttogether.ctsockets.bungee.events.ServerConnectedEvent;
 import de.crafttogether.ctsockets.bungee.events.ServerDisconnectedEvent;
-import de.crafttogether.ctsuite.bungee.messaging.MessagingService;
-import de.crafttogether.ctsuite.bungee.messaging.MessagingService.Adapter;
-import de.crafttogether.ctsuite.bungee.messaging.MessagingService.Callback;
-import de.crafttogether.ctsuite.bungee.messaging.Packet;
-import de.crafttogether.ctsuite.bungee.messaging.ReceivedPacket;
-import de.crafttogether.ctsuite.bungee.messaging.MessagingAdapter;
-import de.crafttogether.ctsuite.bungee.CTSuite;
 
-public class CTSocketsAdapter implements MessagingAdapter, Listener
+public class CTSocketsAdapter implements BungeeMessagingAdapter, Listener
 {	
     private CTSockets ctSockets;
     private MessagingService messaging;
@@ -38,8 +39,6 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
     	
         if (ctSockets == null || !(ctSockets instanceof CTSockets)) {
         	plugin.getLogger().warning("Couln't find CTSockets");
-        	pm.unregisterListeners(plugin);
-        	pm.unregisterCommands(plugin);
         	plugin.onDisable();
             return;
         }
@@ -49,6 +48,7 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
 
 	@EventHandler
     public void onServerConnected(ServerConnectedEvent ev) {
+		System.out.println("ServerConnectedEvent");
 		Map<String, List<Callback>> eventMap = messaging.getEvents();
 		JSONObject values = new JSONObject();
 		values.put("serverName", ev.getServerName());
@@ -63,6 +63,7 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
     
     @EventHandler
     public void onServerDisconnected(ServerDisconnectedEvent ev) {
+		System.out.println("ServerDisconnectedEvent");
 		Map<String, List<Callback>> eventMap = messaging.getEvents();
 		JSONObject values = new JSONObject();
 		values.put("serverName", ev.getServerName());
@@ -77,6 +78,7 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
     
     @EventHandler
     public void onMessageReceived(MessageReceivedEvent ev) {
+		System.out.println("ServerDisconnectedEvent");
     	JSONObject message = null;
     	String packetId = null;
     	JSONObject values = null;
@@ -120,6 +122,8 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
     
 	@Override
 	public void sendTo(Packet packet, String serverName) {
+		System.out.println("SEND TO " + serverName.toUpperCase());
+		System.out.println(packet.getValues().toString());
 		ctSockets.sendToServer(serverName, buildPacket(packet).toString());
 	}
 
@@ -129,7 +133,12 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
 	}
 
 	@Override
-	public Adapter getName(Adapter adapterName) {
+	public Adapter getName() {
 		return Adapter.CTSOCKETS;		
+	}
+
+	@Override
+	public String getClientName() {
+		return "proxy";		
 	}
 }

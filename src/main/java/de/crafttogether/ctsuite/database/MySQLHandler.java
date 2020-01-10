@@ -1,4 +1,4 @@
-package de.crafttogether.ctsuite.bukkit.database;
+package de.crafttogether.ctsuite.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,18 +9,21 @@ import org.jetbrains.annotations.Nullable;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import de.crafttogether.ctsuite.bukkit.CTSuite;
+import de.crafttogether.ctsuite.bungee.CTSuite;
+import de.crafttogether.ctsuite.util.PluginEnvironment;
 
-public class AsyncMySQLHandler {
+public class MySQLHandler {
 	private CTSuite plugin;
+	private PluginEnvironment environment;
 	private HikariDataSource dataSource;
 	
 	public interface Callback<V extends Object, T extends Throwable> {
 	    public void call(V result, T thrown);
 	}
 	
-	public AsyncMySQLHandler(String host, int port, String database, String user, String password) {
+	public MySQLHandler(PluginEnvironment environment, String host, int port, String database, String user, String password) {
 		this.plugin = CTSuite.getInstance();
+		this.environment = environment;
 		
         this.dataSource = new HikariDataSource();
         this.dataSource.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
@@ -29,6 +32,21 @@ public class AsyncMySQLHandler {
         this.dataSource.addDataSourceProperty("databaseName", database);
         this.dataSource.addDataSourceProperty("user", user);
         this.dataSource.addDataSourceProperty("password", password);
+	}
+	
+	private void runCommand(Runnable run) {
+		switch (this.environment) {
+		
+		case BUNGEE:
+			de.crafttogether.ctsuite.bungee.CTSuite bungeePlugin = de.crafttogether.ctsuite.bungee.CTSuite.getInstance();
+			bungeePlugin.getProxy().getScheduler().runAsync(bungeePlugin, run);
+			break;
+			
+		case BUKKIT:
+			de.crafttogether.ctsuite.bukkit.CTSuite bukkitPlugin = de.crafttogether.ctsuite.bukkit.CTSuite.getInstance();
+			bukkitPlugin.getServer().getScheduler().runTaskAsynchronously(bukkitPlugin, run);
+			break;
+		}
 	}
 	
 	public void disconnect() {
@@ -78,7 +96,7 @@ public class AsyncMySQLHandler {
 		if (args.length > 0) statement = String.format(statement, args);
 		final String finalStatement = statement;
 		
-		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+		runCommand(new Runnable() {
 			public void run() {
 				try {
 		            ResultSet resultSet = query(finalStatement);
@@ -125,7 +143,7 @@ public class AsyncMySQLHandler {
 		if (args.length > 0) statement = String.format(statement, args);
 		final String finalStatement = statement;
 		
-		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+		runCommand(new Runnable() {
 			public void run() {
 				try {
 		            int rows = update(finalStatement);
@@ -172,7 +190,7 @@ public class AsyncMySQLHandler {
 		if (args.length > 0) statement = String.format(statement, args);
 		final String finalStatement = statement;
 		
-		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+		runCommand(new Runnable() {
 			public void run() {
 				try {
 					Boolean result = execute(finalStatement);

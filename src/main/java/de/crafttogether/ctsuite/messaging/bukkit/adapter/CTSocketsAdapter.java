@@ -1,6 +1,5 @@
-package de.crafttogether.ctsuite.bukkit.messaging.adapter;
+package de.crafttogether.ctsuite.messaging.bukkit.adapter;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,15 +12,17 @@ import de.crafttogether.ctsockets.bukkit.CTSockets;
 import de.crafttogether.ctsockets.bukkit.events.MessageReceivedEvent;
 import de.crafttogether.ctsockets.bukkit.events.ServerConnectedEvent;
 import de.crafttogether.ctsockets.bukkit.events.ServerDisconnectedEvent;
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingService;
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingService.Adapter;
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingService.Callback;
-import de.crafttogether.ctsuite.bukkit.messaging.Packet;
-import de.crafttogether.ctsuite.bukkit.messaging.ReceivedPacket;
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingAdapter;
+import de.crafttogether.ctsockets.bukkit.events.SocketConnectedEvent;
+import de.crafttogether.ctsockets.bukkit.events.SocketDisconnectedEvent;
 import de.crafttogether.ctsuite.bukkit.CTSuite;
+import de.crafttogether.ctsuite.messaging.BukkitMessagingAdapter;
+import de.crafttogether.ctsuite.messaging.MessagingService;
+import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
+import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
+import de.crafttogether.ctsuite.messaging.Packet;
+import de.crafttogether.ctsuite.messaging.ReceivedPacket;
 
-public class CTSocketsAdapter implements MessagingAdapter, Listener
+public class CTSocketsAdapter implements BukkitMessagingAdapter, Listener
 {	
     private CTSockets ctSockets;
     private MessagingService messaging;
@@ -42,6 +43,29 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
 		
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
+
+	@EventHandler
+    public void onSocketConnected(SocketConnectedEvent ev) {
+		Map<String, List<Callback>> eventMap = messaging.getEvents();
+		String packetId = "socket-connection";
+		if (eventMap.containsKey(packetId)) {
+			List<Callback> events = eventMap.get(packetId);
+			for (Callback event : events)
+				event.run(new ReceivedPacket(packetId, "proxy", new JSONObject()));
+		}
+    }
+
+	@EventHandler
+    public void onSocketDisconnected(SocketDisconnectedEvent ev) {
+		Map<String, List<Callback>> eventMap = messaging.getEvents();
+		
+		String packetId = "socket-disconnect";
+		if (eventMap.containsKey(packetId)) {
+			List<Callback> events = eventMap.get(packetId);
+			for (Callback event : events)
+				event.run(new ReceivedPacket(packetId, "proxy", new JSONObject()));
+		}
+    }
 
 	@EventHandler
     public void onServerConnected(ServerConnectedEvent ev) {
@@ -85,6 +109,9 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
     		return;
     	}
     	
+    	System.out.println("Received: ");
+    	System.out.println(ev.getMessage());
+    	
     	// Filter packets
     	if (!message.has("packetId") || !(message.get("packetId") instanceof String)
     	||  !message.has("values") || !(message.get("values") instanceof JSONObject)) {
@@ -125,7 +152,7 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
 	}
 
 	@Override
-	public void sendServer(Packet packet) {
+	public void sendAllServers(Packet packet) {
 		ctSockets.sendToAllServers(buildPacket(packet).toString());		
 	}
 
@@ -135,7 +162,12 @@ public class CTSocketsAdapter implements MessagingAdapter, Listener
 	}
 
 	@Override
-	public Adapter getName(Adapter adapterName) {
+	public String getClientName() {
+		return ctSockets.getClientName();		
+	}
+
+	@Override
+	public Adapter getName() {
 		return Adapter.CTSOCKETS;		
 	}
 }

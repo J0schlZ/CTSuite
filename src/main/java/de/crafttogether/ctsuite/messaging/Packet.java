@@ -1,10 +1,6 @@
-package de.crafttogether.ctsuite.bukkit.messaging;
-
-import java.util.HashMap;
+package de.crafttogether.ctsuite.messaging;
 
 import org.json.JSONObject;
-
-import de.crafttogether.ctsuite.bukkit.messaging.MessagingAdapter;
 
 public class Packet
 {
@@ -30,15 +26,8 @@ public class Packet
         adapter.sendTo(this, receiver);
     }
     
-    public void sendProxy() {
-    	adapter.sendProxy(this);
-    }
-    
-    public void sendServer() {
-    	adapter.sendServer(this);
-    }
-    
     public void sendAll() {
+        this.receiver = "#server";
     	adapter.sendAll(this);
     }
     

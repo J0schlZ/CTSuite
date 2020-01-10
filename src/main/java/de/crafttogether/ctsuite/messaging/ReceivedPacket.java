@@ -1,4 +1,4 @@
-package de.crafttogether.ctsuite.bungee.messaging;
+package de.crafttogether.ctsuite.messaging;
 
 import org.json.JSONObject;
 
