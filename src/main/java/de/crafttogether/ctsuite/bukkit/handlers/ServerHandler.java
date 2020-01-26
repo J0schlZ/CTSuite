@@ -1,69 +1,79 @@
 package de.crafttogether.ctsuite.bukkit.handlers;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashMap;
-
-import org.bukkit.configuration.file.FileConfiguration;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.crafttogether.ctsuite.bukkit.CTSuite;
-import de.crafttogether.ctsuite.bukkit.database.AsyncMySQLHandler;
+import de.crafttogether.ctsuite.messaging.MessagingService;
+import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
+import de.crafttogether.ctsuite.messaging.ReceivedPacket;
 import de.crafttogether.ctsuite.util.CTServer;
 
 public class ServerHandler {
 	private CTSuite plugin;
-	private AsyncMySQLHandler db;
-	private FileConfiguration config;
+	private MessagingService messaging;
 	
-	private HashMap<String, CTServer> serverMap;
+	private ConcurrentHashMap<String, CTServer> serverMap;
 	
 	public ServerHandler() {
 		plugin	= CTSuite.getInstance();
-		config	= plugin.getConfig();
-		db 		= plugin.getDb();
+		messaging = plugin.getMessagingService();
 		
-		//TODO: Get servers from database
-		//TODO: Process ServerConnectedEvent from CTSockets
+		serverMap = new ConcurrentHashMap<String, CTServer>();
 		
-		//TODO: Register server at database
-		//registerAtDatabase();
-	}
-
-	private void registerAtDatabase() {
-		ResultSet result = null;
-		try {
-			result = db.query("SELECT * FROM `?`.`?_server` WHERE `name` = '?'",
-				plugin.getConfig().getString("mysql.database"),
-				plugin.getConfig().getString("mysql.prefix"),
-				config.getString("settings.serverName")
-			);
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		finally {
-			if (result == null) {
-				try {
-					db.execute("");
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				finally {
-					
+		// Add self to serverMap
+		String serverName = messaging.getAdapter().getClientName();
+		serverMap.put(serverName, new CTServer(serverName));
+		
+		messaging.on("server-register", new Callback() {
+			@Override
+			public void run(ReceivedPacket received) {
+				String serverName = received.getValues().getString("serverName");
+				if (!serverMap.containsKey(serverName))	serverMap.put(serverName, new CTServer(serverName));
+			}
+		});
+		
+		messaging.on("server-disconnect", new Callback() {
+			@Override
+			public void run(ReceivedPacket received) {
+				String serverName = received.getValues().getString("serverName");
+				if (serverMap.containsKey(serverName)) serverMap.remove(serverName);
+			}
+		});
+		
+		messaging.on("socket-disconnect", new Callback() {
+			@Override
+			public void run(ReceivedPacket received) {
+				String serverName = plugin.getMessagingService().getAdapter().getClientName();
+				
+				for (CTServer server : serverMap.values()) {
+					if (!server.getName().equalsIgnoreCase(serverName))
+						serverMap.remove(server.getName());
 				}
 			}
-			else {
-				try {
-					db.update("");
-				} catch (SQLException e) {
-					e.printStackTrace();
+		});
+		
+		messaging.on("server-list", new Callback() {
+			@Override
+			public void run(ReceivedPacket received) {
+				List<Object> serverList = received.getValues().getJSONArray("serverList").toList();
+				
+				// Add new entries
+				for (Object name : serverList) {
+					String serverName = (String) name;
+					if (!serverMap.containsKey(serverName)) serverMap.put(serverName, new CTServer(serverName));
 				}
-				finally {
-					
+				
+				if (received.getSender().equalsIgnoreCase("#proxy")) {
+					// Remove old entries
+					for (String serverName : serverMap.keySet()) {
+						if (!serverList.contains(serverName))
+							serverMap.remove(serverName);
+					}
 				}
 			}
-		}
+		});
 	}
 	
 	public Collection<CTServer> getServer() {

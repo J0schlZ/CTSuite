@@ -11,10 +11,10 @@ public class CTLocation {
 	private double z = 0;
 	private float pitch = 0;
 	private float yaw = 0;
-	private String server = null;
-	private String world = null;
+	private CTServer server = null;
+	private CTWorld world = null;
 
-	public CTLocation(String server, String world, double x, double y, double z) {
+	public CTLocation(CTServer server, CTWorld world, double x, double y, double z) {
 		this.server = server;
 		this.world = world;
 		this.x = x;
@@ -22,7 +22,7 @@ public class CTLocation {
 		this.z = z;
 	}
 	
-	public CTLocation(String server, String world, double x, double y, double z, float pitch, float yaw) {
+	public CTLocation(CTServer server, CTWorld world, double x, double y, double z, float pitch, float yaw) {
 		this.server = server;
 		this.world = world;
 		this.x = x;
@@ -33,11 +33,11 @@ public class CTLocation {
 	}
 
 	
-	public String getServer() {
+	public CTServer getServer() {
 		return server;
 	}
 	
-	public String getWorld() {
+	public CTWorld getWorld() {
 		return world;
 	}
 	
@@ -61,16 +61,44 @@ public class CTLocation {
 		return yaw;
 	}
 	
+	public void setServer(CTServer server) {
+		this.server = server;
+	}
+	
+	public void setWorld(CTWorld world) {
+		this.world = world;
+	}
+	
+	public void setX(double x) {
+		this.x = x;
+	}
+	
+	public void setY(double y) {
+		this.y = y;
+	}
+	
+	public void setZ(double z) {
+		this.z = z;
+	}
+	
+	public void setPitch(float pitch) {
+		this.pitch = pitch;
+	}
+	
+	public void setYaw(float yaw) {
+		this.yaw = yaw;
+	}
+	
 	public Location toBukkitLocation() {
 		return CTLocation.toBukkitLocation(this);
 	}
 	
-	public static CTLocation fromBukkitLocation(Location loc, String serverName) {
-		return new CTLocation(serverName, loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getPitch(), loc.getYaw());
+	public static CTLocation fromBukkitLocation(Location loc, CTServer server) {
+		return new CTLocation(server, CTWorld.fromBukkitWorld(loc.getWorld(), server), loc.getX(), loc.getY(), loc.getZ(), loc.getPitch(), loc.getYaw());
 	}
 	
 	public static Location toBukkitLocation(CTLocation loc) {
-		World world = CTSuite.getInstance().getServer().getWorld(loc.getWorld());
+		World world = CTSuite.getInstance().getServer().getWorld(loc.getWorld().getName());
 		
 		if (world != null)
 			new Location(world, loc.getX(), loc.getY(), loc.getZ(), loc.getPitch(), loc.getYaw());

@@ -4,5 +4,6 @@ main: de.crafttogether.ctsuite.bukkit.CTSuite
 api-version: 1.13
 version: ${project.version}
 build: ${project.cibuild}
+softdepend: [CTSockets, Multiverse-Core]
 author: J0schlZ
 website: ${project.url}
