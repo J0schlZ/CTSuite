@@ -1,4 +1,4 @@
-package de.crafttogether.ctsuite.database;
+package de.crafttogether.ctsuite.util;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 import com.zaxxer.hikari.HikariDataSource;
 
 import de.crafttogether.ctsuite.bungee.CTSuite;
-import de.crafttogether.ctsuite.util.PluginEnvironment;
 
 public class MySQLHandler {
 	private CTSuite plugin;
@@ -34,7 +33,7 @@ public class MySQLHandler {
         this.dataSource.addDataSourceProperty("password", password);
 	}
 	
-	private void runCommand(Runnable run) {
+	private void execute(Runnable run) {
 		switch (this.environment) {
 		
 		case BUNGEE:
@@ -96,7 +95,7 @@ public class MySQLHandler {
 		if (args.length > 0) statement = String.format(statement, args);
 		final String finalStatement = statement;
 		
-		runCommand(new Runnable() {
+		execute(new Runnable() {
 			public void run() {
 				try {
 		            ResultSet resultSet = query(finalStatement);
@@ -143,7 +142,7 @@ public class MySQLHandler {
 		if (args.length > 0) statement = String.format(statement, args);
 		final String finalStatement = statement;
 		
-		runCommand(new Runnable() {
+		execute(new Runnable() {
 			public void run() {
 				try {
 		            int rows = update(finalStatement);
@@ -190,7 +189,7 @@ public class MySQLHandler {
 		if (args.length > 0) statement = String.format(statement, args);
 		final String finalStatement = statement;
 		
-		runCommand(new Runnable() {
+		execute(new Runnable() {
 			public void run() {
 				try {
 					Boolean result = execute(finalStatement);

@@ -26,9 +26,9 @@ import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
 import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
 import de.crafttogether.ctsuite.util.CTServer;
 import de.crafttogether.ctsuite.util.CTWorld;
+import de.crafttogether.ctsuite.util.MySQLHandler;
 import de.crafttogether.ctsuite.util.PluginEnvironment;
-import de.crafttogether.ctsuite.messaging.Packet;
-import de.crafttogether.ctsuite.database.AsyncMySQLHandler;
+import de.crafttogether.ctsuite.messaging.bukkit.Packet;
 import de.crafttogether.ctsuite.bukkit.handlers.PlayerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.ServerHandler;
 import de.crafttogether.ctsuite.bukkit.handlers.WorldHandler;
@@ -44,7 +44,7 @@ public class CTSuite extends JavaPlugin {
 	private static PluginEnvironment environment = PluginEnvironment.BUKKIT;
 	
 	private FileConfiguration config;
-	private AsyncMySQLHandler db;
+	private MySQLHandler db;
 	private MessagingService messaging;
 	
 	private ServerHandler serverHandler;
@@ -68,6 +68,7 @@ public class CTSuite extends JavaPlugin {
 		playerHandler = new PlayerHandler();
 		worldHandler = new WorldHandler();
 		
+		// Send serverName & worldList as "server-register"-packet to all instances since connection is established
 		messaging.on("socket-connection", new Callback() {
 			@Override
 			public void run(ReceivedPacket received) {
@@ -82,8 +83,6 @@ public class CTSuite extends JavaPlugin {
 				packet.sendAll();
 			}
 		});
-		
-		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
 
 		// Run 5 Sek later as test
 		Bukkit.getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
@@ -97,12 +96,14 @@ public class CTSuite extends JavaPlugin {
 					plugin.getLogger().info(world.getName());
 			}
 		}, 20L*5, 20L*5);
+		
+		plugin.getLogger().info(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
 	}
 
 	@Override
 	public void onDisable() {
 		//db.disconnect();
-		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " disabled");
+		plugin.getLogger().info(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " disabled");
 	}
 	
 	private FileConfiguration loadConfig() {
@@ -168,7 +169,7 @@ public class CTSuite extends JavaPlugin {
 		return config;
 	}
 	
-	public AsyncMySQLHandler getDb() {
+	public MySQLHandler getDb() {
 		return db;
 	}
 	

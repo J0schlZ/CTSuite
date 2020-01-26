@@ -16,14 +16,13 @@ import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-
-import de.crafttogether.ctsuite.database.AsyncMySQLHandler;
 import de.crafttogether.ctsuite.bungee.handlers.ServerHandler;
 import de.crafttogether.ctsuite.bungee.handlers.WorldHandler;
 import de.crafttogether.ctsuite.messaging.MessagingService;
 import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
 import de.crafttogether.ctsuite.util.CTServer;
 import de.crafttogether.ctsuite.util.CTWorld;
+import de.crafttogether.ctsuite.util.MySQLHandler;
 import de.crafttogether.ctsuite.util.PluginEnvironment;
 
 /**
@@ -37,7 +36,7 @@ public class CTSuite extends Plugin {
 	private static PluginEnvironment environment = PluginEnvironment.BUNGEE;
 	
     private Configuration config;
-	private AsyncMySQLHandler db;
+	private MySQLHandler db;
 	private MessagingService messaging;
 
 	private ServerHandler serverHandler;
@@ -54,8 +53,6 @@ public class CTSuite extends Plugin {
         
 		serverHandler = new ServerHandler();
 		worldHandler = new WorldHandler();
-		
-    	System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
     	
 		// Run 5 Sek later as test
 		plugin.getProxy().getScheduler().schedule(this, new Runnable() {
@@ -69,6 +66,8 @@ public class CTSuite extends Plugin {
 					plugin.getLogger().info(world.getName());
 			}
 		}, 5, 5, TimeUnit.SECONDS);
+		
+		plugin.getLogger().info(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
 	}
 
     @Override
@@ -77,7 +76,8 @@ public class CTSuite extends Plugin {
     	//db.disconnect();
     	pm.unregisterListeners(this);
     	pm.unregisterCommands(this);
-		System.out.println(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " disabled");
+    	
+    	plugin.getLogger().info(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " disabled");
     }
     
 	private Configuration loadConfig() {
@@ -121,7 +121,7 @@ public class CTSuite extends Plugin {
 		return config;
 	}
 	
-	public AsyncMySQLHandler getDb() {
+	public MySQLHandler getDb() {
 		return db;
 	}
 	
