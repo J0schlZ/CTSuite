@@ -14,7 +14,7 @@ import de.crafttogether.ctsuite.bungee.CTSuite;
 import de.crafttogether.ctsuite.messaging.MessagingService;
 import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
 import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
-import de.crafttogether.ctsuite.messaging.Packet;
+import de.crafttogether.ctsuite.messaging.bungee.Packet;
 import de.crafttogether.ctsuite.messaging.ReceivedPacket;
 import de.crafttogether.ctsuite.messaging.BungeeMessagingAdapter;
 import de.crafttogether.ctsockets.bungee.CTSockets;

@@ -1,20 +1,23 @@
-package de.crafttogether.ctsuite.messaging;
+package de.crafttogether.ctsuite.messaging.bungee;
 
 import org.json.JSONObject;
+
+import de.crafttogether.ctsuite.messaging.BungeeMessagingAdapter;
+import de.crafttogether.ctsuite.messaging.MessagingService;
 
 public class Packet
 {
     private String packetId;
     private String receiver;
     private MessagingService messaging;
-    private MessagingAdapter adapter;
+    private BungeeMessagingAdapter adapter;
     private JSONObject values;
     
     public Packet(String packetId) {
         this.packetId = packetId;
         this.values = new JSONObject();
         this.messaging = MessagingService.getInstance();
-        this.adapter = messaging.getAdapter();
+        this.adapter = (BungeeMessagingAdapter) messaging.getAdapter();
     }
     
     public void put(String key, Object value) {

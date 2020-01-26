@@ -19,7 +19,7 @@ import de.crafttogether.ctsuite.messaging.BukkitMessagingAdapter;
 import de.crafttogether.ctsuite.messaging.MessagingService;
 import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
 import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
-import de.crafttogether.ctsuite.messaging.Packet;
+import de.crafttogether.ctsuite.messaging.bukkit.Packet;
 import de.crafttogether.ctsuite.messaging.ReceivedPacket;
 
 public class CTSocketsAdapter implements BukkitMessagingAdapter, Listener
