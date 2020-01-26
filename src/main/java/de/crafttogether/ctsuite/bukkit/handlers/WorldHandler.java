@@ -7,6 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,10 +18,11 @@ import de.crafttogether.ctsuite.bukkit.CTSuite;
 import de.crafttogether.ctsuite.messaging.MessagingService;
 import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
 import de.crafttogether.ctsuite.messaging.ReceivedPacket;
+import de.crafttogether.ctsuite.messaging.bukkit.Packet;
 import de.crafttogether.ctsuite.util.CTServer;
 import de.crafttogether.ctsuite.util.CTWorld;
 
-public class WorldHandler {
+public class WorldHandler implements Listener {
 	private CTSuite plugin;
 	private MessagingService messaging;
 	
@@ -53,6 +58,28 @@ public class WorldHandler {
 				worldMap.put(worldName, new CTWorld(worldName, server));
 		}
 		
+		// Register Bukkit Events
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+		
+		// Register depending Packets
+		addPacketListeners();
+	}
+
+	@EventHandler (priority = EventPriority.MONITOR)
+	public void onWorldLoad(WorldLoadEvent e) {
+		Packet packet = new Packet("world-loaded");
+		packet.put("worldName", e.getWorld().getName());
+		packet.sendAll();
+	}
+
+	@EventHandler (priority = EventPriority.MONITOR)
+	public void onWorldUnload(WorldLoadEvent e) {
+		Packet packet = new Packet("world-unloaded");
+		packet.put("worldName", e.getWorld().getName());
+		packet.sendAll();
+	}
+	
+	private void addPacketListeners() {
 		messaging.on("server-register", new Callback() {
 			@Override
 			public void run(ReceivedPacket received) {				
@@ -163,7 +190,7 @@ public class WorldHandler {
 			}
 		});
 	}
-
+	
 	public Collection<CTWorld> getWorlds() {
 		return worldMap.values();
 	}
