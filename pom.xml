@@ -40,7 +40,7 @@
     </repository>
     <repository>
       <id>ctogether-repo</id>
-      <url>https://maven.vanilla-minecraft.de/</url>
+      <url>https://maven.craft-together.de/</url>
     </repository>
   </repositories>
   
@@ -92,7 +92,7 @@
   <distributionManagement>
     <repository>
       <id>ctogether-ftp</id>
-      <url>ftp://maven.vanilla-minecraft.de/</url>
+      <url>ftp://maven.craft-together.de/</url>
     </repository>
   </distributionManagement>
   
