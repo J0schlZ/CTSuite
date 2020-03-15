@@ -93,10 +93,6 @@ public class CTLocation {
 		return CTLocation.toBukkitLocation(this);
 	}
 	
-	public static CTLocation fromBukkitLocation(Location loc, CTServer server) {
-		return new CTLocation(server, CTWorld.fromBukkitWorld(loc.getWorld(), server), loc.getX(), loc.getY(), loc.getZ(), loc.getPitch(), loc.getYaw());
-	}
-	
 	public static Location toBukkitLocation(CTLocation loc) {
 		World world = CTSuite.getInstance().getServer().getWorld(loc.getWorld().getName());
 		

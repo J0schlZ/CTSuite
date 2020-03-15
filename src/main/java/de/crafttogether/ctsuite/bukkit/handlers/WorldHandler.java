@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -67,13 +68,15 @@ public class WorldHandler implements Listener {
 
 	@EventHandler (priority = EventPriority.MONITOR)
 	public void onWorldLoad(WorldLoadEvent e) {
+		plugin.getLogger().info("World '" + e.getWorld().getName() + "' loaded");
 		Packet packet = new Packet("world-loaded");
 		packet.put("worldName", e.getWorld().getName());
 		packet.sendAll();
 	}
 
 	@EventHandler (priority = EventPriority.MONITOR)
-	public void onWorldUnload(WorldLoadEvent e) {
+	public void onWorldUnload(WorldUnloadEvent e) {
+		plugin.getLogger().info("World '" + e.getWorld().getName() + "' unloaded");
 		Packet packet = new Packet("world-unloaded");
 		packet.put("worldName", e.getWorld().getName());
 		packet.sendAll();
@@ -96,9 +99,9 @@ public class WorldHandler implements Listener {
 				}
 				
 				// Add new entries
-				for (Object name : worldlist) {
-					String worldName = (String) name;
-					if (!worldMap.containsKey(worldName)) worldMap.put(worldName, new CTWorld(worldName, server));
+				for (Object obj : worldlist) {
+					CTWorld world = (CTWorld) obj;
+					if (!worldMap.containsKey(world.getName())) worldMap.put(world.getName(), world);
 				}
 			
 				plugin.getLogger().info("Server '" + received.getSender() + "' registered");
@@ -167,7 +170,7 @@ public class WorldHandler implements Listener {
 			@Override
 			public void run(ReceivedPacket received) {
 				String worldName = received.getValues().getString("worldName");
-				String serverName = received.getValues().getString("serverName");
+				String serverName = received.getSender();
 				CTServer server = plugin.getServerHandler().getServer(serverName);
 				
 				if (server == null) {

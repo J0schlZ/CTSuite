@@ -27,6 +27,11 @@ public class WorldHandler {
 		
 		worldMap = new ConcurrentHashMap<String, CTWorld>();
 		
+		// Register depending Packets
+		addPacketListeners();
+	}
+	
+	private void addPacketListeners() {
 		messaging.on("server-register", new Callback() {
 			@Override
 			public void run(ReceivedPacket received) {				
@@ -82,7 +87,7 @@ public class WorldHandler {
 			@Override
 			public void run(ReceivedPacket received) {
 				String worldName = received.getValues().getString("worldName");
-				String serverName = received.getValues().getString("serverName");
+				String serverName = received.getSender();
 				CTServer server = plugin.getServerHandler().getServer(serverName);
 				
 				if (server == null) {

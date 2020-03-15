@@ -23,7 +23,7 @@ public class MessagingService {
 	
 	private MessagingAdapter adapter;
 	
-	public MessagingService(Adapter adapterName, PluginEnvironment environment) {
+	public MessagingService(PluginEnvironment environment, Adapter adapterName) {
 		messagingService = this;
 		
 		this.eventMap = new HashMap<String, List<Callback>>();

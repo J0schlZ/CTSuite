@@ -14,6 +14,13 @@ public class PlayerHandler {
 	
 	public PlayerHandler() {
 		plugin = CTSuite.getInstance();
+		
+		// Register depending Packets
+		addPacketListeners();
+	}
+	
+	private void addPacketListeners() {
+		
 	}
 	
 	public Collection<CTPlayer> getPlayers() {

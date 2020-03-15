@@ -26,6 +26,11 @@ public class ServerHandler {
 		String serverName = messaging.getAdapter().getClientName();
 		serverMap.put(serverName, new CTServer(serverName));
 		
+		// Register depending Packets
+		addPacketListeners();
+	}
+	
+	private void addPacketListeners() {
 		messaging.on("server-register", new Callback() {
 			@Override
 			public void run(ReceivedPacket received) {

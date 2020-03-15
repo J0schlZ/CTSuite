@@ -24,6 +24,11 @@ public class ServerHandler {
 		
 		serverMap = new ConcurrentHashMap<String, CTServer>();
 		
+		// Register depending Packets
+		addPacketListeners();
+	}
+	
+	private void addPacketListeners() {
 		messaging.on("server-register", new Callback() {
 			@Override
 			public void run(ReceivedPacket received) {

@@ -18,10 +18,5 @@ public class CTWorld {
 	public CTServer getServer() {
 		return server;
 	}
-
-	public static CTWorld fromBukkitWorld(World world, CTServer server2) {
-		// brainfuck?!
-		return null;
-	}
 }
 

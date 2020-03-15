@@ -34,8 +34,13 @@ public class PlayerHandler {
 			CTWorld world = plugin.getWorldHandler().getWorld(player.getWorld().getName());
 			
 			if (!playerMap.containsKey(uuid))
-				playerMap.put(uuid, new CTPlayer(uuid, playerName, server, world));
+				playerMap.put(uuid, new CTBukkitPlayer(uuid, playerName, server, world));
 		}
+		
+		addPacketListeners();
+	}
+	
+	private void addPacketListeners() {
 		/*
 		messaging.on("server-register", new Callback() {
 			@Override
