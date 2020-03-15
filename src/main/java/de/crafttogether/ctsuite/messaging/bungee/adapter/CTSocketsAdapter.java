@@ -48,7 +48,6 @@ public class CTSocketsAdapter implements BungeeMessagingAdapter, Listener
 
 	@EventHandler
     public void onServerConnected(ServerConnectedEvent ev) {
-		System.out.println("ServerConnectedEvent");
 		Map<String, List<Callback>> eventMap = messaging.getEvents();
 		JSONObject values = new JSONObject();
 		values.put("serverName", ev.getServerName());
@@ -63,7 +62,6 @@ public class CTSocketsAdapter implements BungeeMessagingAdapter, Listener
     
     @EventHandler
     public void onServerDisconnected(ServerDisconnectedEvent ev) {
-		System.out.println("ServerDisconnectedEvent");
 		Map<String, List<Callback>> eventMap = messaging.getEvents();
 		JSONObject values = new JSONObject();
 		values.put("serverName", ev.getServerName());
@@ -78,7 +76,6 @@ public class CTSocketsAdapter implements BungeeMessagingAdapter, Listener
     
     @EventHandler
     public void onMessageReceived(MessageReceivedEvent ev) {
-		System.out.println("ServerDisconnectedEvent");
     	JSONObject message = null;
     	String packetId = null;
     	JSONObject values = null;
