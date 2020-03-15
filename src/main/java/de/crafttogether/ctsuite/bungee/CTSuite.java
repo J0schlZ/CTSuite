@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.io.ByteStreams;
@@ -23,7 +25,9 @@ import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
 import de.crafttogether.ctsuite.util.CTServer;
 import de.crafttogether.ctsuite.util.CTWorld;
 import de.crafttogether.ctsuite.util.MySQLHandler;
+import de.crafttogether.ctsuite.util.MySQLHandler.Callback;
 import de.crafttogether.ctsuite.util.PluginEnvironment;
+import de.crafttogether.ctsuite.util.Util;
 
 /**
  * CTSuite
@@ -45,11 +49,10 @@ public class CTSuite extends Plugin {
     @Override
 	public void onEnable() {
     	plugin = this;
-		//db = new AsyncMySQLHandler(environment, "127.0.0.1", 3306, "ct_ctogether", "ctogether", "");	
-
 		loadConfig();
 		
-		messaging = new MessagingService(Adapter.CTSOCKETS, environment);
+		db = new MySQLHandler(environment, config.getString("MySQL.host"), config.getInt("MySQL.port"), config.getString("MySQL.database"), config.getString("MySQL.username"), config.getString("MySQL.password"));
+		messaging = new MessagingService(environment, Adapter.CTSOCKETS);
         
 		serverHandler = new ServerHandler();
 		worldHandler = new WorldHandler();
@@ -66,6 +69,18 @@ public class CTSuite extends Plugin {
 					plugin.getLogger().info(world.getName());
 			}
 		}, 5, 5, TimeUnit.SECONDS);
+		
+		plugin.getLogger().info("Installiere Tabellen...");
+		db.queryAsync(Util.readFile(getResourceAsStream("tables.sql")), new Callback<ResultSet, SQLException>() {
+			@Override
+			public void call(ResultSet result, SQLException err) {
+				if (err != null) {
+					err.printStackTrace();
+				}
+				
+				plugin.getLogger().info("Tabellen installiert");
+			}
+		});
 		
 		plugin.getLogger().info(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
 	}

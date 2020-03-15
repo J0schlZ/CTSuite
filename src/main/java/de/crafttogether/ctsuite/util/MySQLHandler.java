@@ -9,10 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import de.crafttogether.ctsuite.bungee.CTSuite;
-
 public class MySQLHandler {
-	private CTSuite plugin;
 	private PluginEnvironment environment;
 	private HikariDataSource dataSource;
 	
@@ -21,7 +18,6 @@ public class MySQLHandler {
 	}
 	
 	public MySQLHandler(PluginEnvironment environment, String host, int port, String database, String user, String password) {
-		this.plugin = CTSuite.getInstance();
 		this.environment = environment;
 		
         this.dataSource = new HikariDataSource();
@@ -68,7 +64,7 @@ public class MySQLHandler {
             try {
                 resultSet.close();
             } catch (SQLException e) {
-            	plugin.getLogger().warning(e.getMessage());
+            	System.out.println(e.getMessage());
             }
         }
        
@@ -76,7 +72,7 @@ public class MySQLHandler {
             try {
                 preparedStatement.close();
             } catch (SQLException e) {
-            	plugin.getLogger().warning(e.getMessage());
+            	System.out.println(e.getMessage());
             }
         }
        
@@ -84,7 +80,7 @@ public class MySQLHandler {
             try {
                 connection.close();
             } catch (SQLException e) {
-            	plugin.getLogger().warning(e.getMessage());
+            	System.out.println(e.getMessage());
             }
         }
         
@@ -123,7 +119,7 @@ public class MySQLHandler {
             try {
                 preparedStatement.close();
             } catch (SQLException e) {
-            	plugin.getLogger().warning(e.getMessage());
+            	System.out.println(e.getMessage());
             }
         }
        
@@ -131,7 +127,7 @@ public class MySQLHandler {
             try {
                 connection.close();
             } catch (SQLException e) {
-            	plugin.getLogger().warning(e.getMessage());
+            	System.out.println(e.getMessage());
             }
         }
         
@@ -170,7 +166,7 @@ public class MySQLHandler {
 		    try {
 		        preparedStatement.close();
 		    } catch (SQLException e) {
-		    	plugin.getLogger().warning(e.getMessage());
+		    	System.out.println(e.getMessage());
 		    }
 		}
 		   
@@ -178,7 +174,7 @@ public class MySQLHandler {
 		    try {
 		        connection.close();
 		    } catch (SQLException e) {
-		    	plugin.getLogger().warning(e.getMessage());
+		    	System.out.println(e.getMessage());
 		    }
 		}
 		

@@ -16,7 +16,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONArray;
-
 import com.google.common.io.ByteStreams;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 
@@ -24,6 +23,7 @@ import de.crafttogether.ctsuite.messaging.MessagingService;
 import de.crafttogether.ctsuite.messaging.ReceivedPacket;
 import de.crafttogether.ctsuite.messaging.MessagingService.Adapter;
 import de.crafttogether.ctsuite.messaging.MessagingService.Callback;
+import de.crafttogether.ctsuite.util.CTPlayer;
 import de.crafttogether.ctsuite.util.CTServer;
 import de.crafttogether.ctsuite.util.CTWorld;
 import de.crafttogether.ctsuite.util.MySQLHandler;
@@ -56,13 +56,13 @@ public class CTSuite extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		plugin = this;
-		//db = new AsyncMySQLHandler(environment, "127.0.0.1", 3306, "ct_ctogether", "ctogether", "");
         
 		loadConfig();
 		loadPlugins();
 		//new RegisterCommands();
 		
-		messaging = new MessagingService(Adapter.CTSOCKETS, environment);
+		db = new MySQLHandler(environment, config.getString("MySQL.host"), config.getInt("MySQL.port"), config.getString("MySQL.database"), config.getString("MySQL.username"), config.getString("MySQL.password"));
+		messaging = new MessagingService(environment, Adapter.CTSOCKETS);
 		
 		serverHandler = new ServerHandler();
 		playerHandler = new PlayerHandler();
@@ -76,10 +76,15 @@ public class CTSuite extends JavaPlugin {
 				
 				JSONArray worldList = new JSONArray();
 				for (CTWorld world : worldHandler.getWorlds())
-					worldList.put(world.getName());
+					worldList.put(world);
+				
+				JSONArray playerList = new JSONArray();
+				for (CTPlayer player : playerHandler.getPlayers())
+					playerList.put(player);
 
 				packet.put("serverName", messaging.getAdapter().getClientName());
 				packet.put("worldList", worldList);
+				packet.put("playerList", worldList);
 				packet.sendAll();
 			}
 		});
