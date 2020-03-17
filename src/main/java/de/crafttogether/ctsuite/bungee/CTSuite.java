@@ -51,7 +51,7 @@ public class CTSuite extends Plugin {
     	plugin = this;
 		loadConfig();
 		
-		db = new MySQLHandler(environment, config.getString("MySQL.host"), config.getInt("MySQL.port"), config.getString("MySQL.database"), config.getString("MySQL.username"), config.getString("MySQL.password"));
+		//db = new MySQLHandler(environment, config.getString("MySQL.host"), config.getInt("MySQL.port"), config.getString("MySQL.database"), config.getString("MySQL.username"), config.getString("MySQL.password"));
 		messaging = new MessagingService(environment, Adapter.CTSOCKETS);
         
 		serverHandler = new ServerHandler();
@@ -70,7 +70,7 @@ public class CTSuite extends Plugin {
 			}
 		}, 5, 5, TimeUnit.SECONDS);
 		
-		plugin.getLogger().info("Installiere Tabellen...");
+		/*plugin.getLogger().info("Installiere Tabellen...");
 		db.queryAsync(Util.readFile(getResourceAsStream("tables.sql")), new Callback<ResultSet, SQLException>() {
 			@Override
 			public void call(ResultSet result, SQLException err) {
@@ -80,7 +80,7 @@ public class CTSuite extends Plugin {
 				
 				plugin.getLogger().info("Tabellen installiert");
 			}
-		});
+		});*/
 		
 		plugin.getLogger().info(this.getDescription().getName() + " v" + this.getDescription().getVersion() + " enabled");
 	}

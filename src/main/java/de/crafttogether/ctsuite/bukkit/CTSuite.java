@@ -61,7 +61,7 @@ public class CTSuite extends JavaPlugin {
 		loadPlugins();
 		//new RegisterCommands();
 		
-		db = new MySQLHandler(environment, config.getString("MySQL.host"), config.getInt("MySQL.port"), config.getString("MySQL.database"), config.getString("MySQL.username"), config.getString("MySQL.password"));
+		//db = new MySQLHandler(environment, config.getString("MySQL.host"), config.getInt("MySQL.port"), config.getString("MySQL.database"), config.getString("MySQL.username"), config.getString("MySQL.password"));
 		messaging = new MessagingService(environment, Adapter.CTSOCKETS);
 		
 		serverHandler = new ServerHandler();
@@ -76,7 +76,7 @@ public class CTSuite extends JavaPlugin {
 				
 				JSONArray worldList = new JSONArray();
 				for (CTWorld world : worldHandler.getWorlds())
-					worldList.put(world);
+					worldList.put(world.getName());
 				
 				JSONArray playerList = new JSONArray();
 				for (CTPlayer player : playerHandler.getPlayers())
