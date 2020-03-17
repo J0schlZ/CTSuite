@@ -3,8 +3,6 @@ package de.crafttogether.ctsuite.util;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import de.crafttogether.ctsuite.bukkit.CTSuite;
-
 public class CTLocation {
 	private double x = 0;
 	private double y = 0;
@@ -88,20 +86,4 @@ public class CTLocation {
 	public void setYaw(float yaw) {
 		this.yaw = yaw;
 	}
-	
-	public Location toBukkitLocation() {
-		return CTLocation.toBukkitLocation(this);
-	}
-	
-	public static Location toBukkitLocation(CTLocation loc) {
-		World world = CTSuite.getInstance().getServer().getWorld(loc.getWorld().getName());
-		
-		if (world != null)
-			new Location(world, loc.getX(), loc.getY(), loc.getZ(), loc.getPitch(), loc.getYaw());
-		
-		//TODO: UnkownWorldExcpetion?
-		
-		return null;
-	}
-	
 }

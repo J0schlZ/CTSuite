@@ -1,7 +1,5 @@
 package de.crafttogether.ctsuite.util;
 
-import org.bukkit.World;
-
 public class CTWorld {
 	private String worldName;
 	private CTServer server;
